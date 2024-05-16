@@ -4,7 +4,7 @@ import UIKit
 /// An image view able to represent multiple state of an asynchronous image loading operation.
 open class AsyncImageView: UIView {
 
-  /// The image loading operation states.
+  /// The image loading operation states
   public enum ImageLoad {
     case loading(Braze.Cancellable)
     case failed(Error)
@@ -58,8 +58,7 @@ open class AsyncImageView: UIView {
   }
 
   private var effectiveAspectRatio: Double {
-    let effectiveAspectRatio = fixedAspectRatio ?? aspectRatio
-    return effectiveAspectRatio <= 0 ? 1.0 : effectiveAspectRatio
+    fixedAspectRatio ?? aspectRatio
   }
 
   private var aspectRatioConstraint: NSLayoutConstraint!
@@ -108,7 +107,7 @@ open class AsyncImageView: UIView {
     case .failed:
       retryButton.isHidden = retry == nil
     case .success(let url, let size):
-      aspectRatio = size.height <= 0 ? 1.0 : (size.width / size.height)
+      aspectRatio = size.width / size.height
       GIFViewProvider.shared.updateView(imageView, url)
       updateImageCornerRadius()
     }
@@ -150,7 +149,7 @@ open class AsyncImageView: UIView {
   public lazy var retryButton: UIButton = {
     let image = UIImage(
       named: "ContentCard/retry",
-      in: BrazeUIResources.bundle,
+      in: resourcesBundle,
       compatibleWith: traitCollection
     )?
     .withRenderingMode(.alwaysTemplate)

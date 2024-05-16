@@ -13,7 +13,6 @@ func localize(_ key: String, for localizationSet: LocalizationSet) -> String {
     return override
   }
 
-  return BrazeUIResources.bundle?.localizedString(
-    forKey: key, value: nil, table: localizationSet.rawValue)
+  return resourcesBundle?.localizedString(forKey: key, value: nil, table: localizationSet.rawValue)
     ?? key
 }

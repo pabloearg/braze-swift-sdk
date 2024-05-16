@@ -24,7 +24,7 @@ NSString *const ABKContentCardsProcessedIsSuccessfulKey = @"isSuccessful";
     case BRZContentCardRawTypeClassic:
       abkCard = [[ABKClassicContentCard alloc] initWithContentCard:card];
       break;
-    case BRZContentCardRawTypeImageOnly:
+    case BRZContentCardRawTypeBanner:
       abkCard = [[ABKBannerContentCard alloc] initWithContentCard:card];
       break;
     case BRZContentCardRawTypeCaptionedImage:

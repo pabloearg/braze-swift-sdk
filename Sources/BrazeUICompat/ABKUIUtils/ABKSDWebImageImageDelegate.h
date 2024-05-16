@@ -1,4 +1,4 @@
-#import "ABKImageDelegate.h"
+@import BrazeKitCompat;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

@@ -6,16 +6,16 @@ public enum BrazeContentCardUI {}
 
 extension Braze.ContentCard {
 
-  /// The cell identifier used by ``BrazeUI/BrazeContentCardUI/ViewController`` to display the
-  /// content cards.
+  /// The cell identifier used by ``BrazeContentCardUI/ViewController`` to display the content
+  /// cards.
   public var cellIdentifier: String {
     switch self {
     case .classic:
       return BrazeContentCardUI.ClassicCell.identifier
     case .classicImage:
       return BrazeContentCardUI.ClassicImageCell.identifier
-    case .imageOnly:
-      return BrazeContentCardUI.ImageOnlyCell.identifier
+    case .banner:
+      return BrazeContentCardUI.BannerCell.identifier
     case .captionedImage:
       return BrazeContentCardUI.CaptionedImageCell.identifier
     case .control:

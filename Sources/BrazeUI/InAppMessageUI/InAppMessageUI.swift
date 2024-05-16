@@ -68,10 +68,8 @@ open class BrazeInAppMessageUI:
     set { _followupMessage = newValue }
   }
 
-  /// This property acts as a store for ``followupMessage``.
-  ///
-  /// Storing the typed `Braze.InAppMessage?` directly on the `BrazeInAppMessageUI` class leads to
-  /// that class not being available in ObjC.
+  /// This property acts as a store for ``followupMessage``. Storing the typed `Braze.InAppMessage?`
+  /// directly on the `BrazeInAppMessageUI` class leads to that class not being available in ObjC.
   ///
   /// This seems to be a compiler bug as no warning or error are printed during the compilation
   /// process.
@@ -105,13 +103,9 @@ open class BrazeInAppMessageUI:
     switch displayChoice {
     case .now:
       prepareAndPresent(message: message)
-    case .reenqueue:
-      // Remove message from stack (if present) and place on top
-      stack.removeAll { $0.isApproximatelyEqual(to: message) }
+    case .later:
       stack.append(message)
     case .discard:
-      // Remove message from stack (if present) and discard it
-      stack.removeAll { $0.isApproximatelyEqual(to: message) }
       message.context?.discard()
     }
   }
@@ -149,7 +143,7 @@ open class BrazeInAppMessageUI:
     }
 
     // Remove the message from the stack if needed
-    stack.removeAll { $0.isApproximatelyEqual(to: message) }
+    stack.removeAll { $0 == message }
 
     // Transform remote asset URLs to local asset URLs
     // - IAMs not originating from Braze (`context == nil`) cannot go through this transformation
@@ -222,20 +216,11 @@ open class BrazeInAppMessageUI:
 
     // - Window
     let window: Window
-    #if os(visionOS)
-      if let windowScene = context.windowScene {
-        window = Window(windowScene: windowScene)
-      } else {
-        message.context?.logError(flattened: Error.noWindowScene.logDescription)
-        return
-      }
-    #else
-      if #available(iOS 13.0, tvOS 13.0, *), let windowScene = context.windowScene {
-        window = Window(windowScene: windowScene)
-      } else {
-        window = Window(frame: UIScreen.main.bounds)
-      }
-    #endif
+    if #available(iOS 13.0, tvOS 13.0, *), let windowScene = context.windowScene {
+      window = Window(windowScene: windowScene)
+    } else {
+      window = Window(frame: UIScreen.main.bounds)
+    }
     window.accessibilityViewIsModal = true
     window.windowLevel = context.windowLevel
     window.rootViewController = viewController
@@ -251,22 +236,18 @@ open class BrazeInAppMessageUI:
     }
 
     // Display
-    #if os(iOS)
-      if #available(iOS 15.0, *) {
-        // - Use animation block to animate the status bar hidden state
-        UIView.animate(withDuration: message.animateIn ? 0.25 : 0) {
-          // - Use `isHidden` instead of `makeKeyAndVisible` to defer the choice of hiding the keyboard
-          //   to the message view. See `InAppMessageView/makeKey`. `isHidden` just displays the window
-          //   without touching the first responder.
-          window.isHidden = false
-        }
-      } else {
-        // - No animation block before iOS 15.0, it has undesired side effects
+    if #available(iOS 15.0, *) {
+      // - Use animation block to animate the status bar hidden state
+      UIView.animate(withDuration: message.animateIn ? 0.25 : 0) {
+        // - Use `isHidden` instead of `makeKeyAndVisible` to defer the choice of hiding the keyboard
+        //   to the message view. See `InAppMessageView/makeKey`. `isHidden` just displays the window
+        //   without touching the first responder.
         window.isHidden = false
       }
-    #elseif os(visionOS)
+    } else {
+      // - No animation block before iOS 15.0, it has undesired side effects
       window.isHidden = false
-    #endif
+    }
 
   }
 
@@ -297,9 +278,8 @@ open class BrazeInAppMessageUI:
 
   func validateMainThread(for message: Braze.InAppMessage) -> Bool {
     guard Thread.isMainThread else {
-      DispatchQueue.main.async {
-        [weak self] in
-        self?.logError(for: message.context, error: .noMainThread)
+      DispatchQueue.main.sync {
+        logError(for: message.context, error: .noMainThread)
       }
       return false
     }
@@ -333,7 +313,7 @@ open class BrazeInAppMessageUI:
         logError(for: message.context, error: .otherMessagePresented(push: false))
       case .stack:
         // Remove message from stack (if present) and place on top
-        stack.removeAll { $0.isApproximatelyEqual(to: message) }
+        stack.removeAll { $0.data.id == message.data.id }
         stack.append(message)
         logError(for: message.context, error: .otherMessagePresented(push: true))
       case .followup:
@@ -358,7 +338,7 @@ open class BrazeInAppMessageUI:
   func validateOrientation(for message: Braze.InAppMessage) -> Bool {
     let traits = Braze.UIUtils.activeTopmostViewController?.traitCollection
     guard message.orientation.supported(by: traits) else {
-      stack.removeAll { $0.isApproximatelyEqual(to: message) }
+      stack.removeAll { $0 == message }
       logError(for: message.context, error: .noMatchingOrientation)
       return false
     }
@@ -372,7 +352,7 @@ open class BrazeInAppMessageUI:
     }
 
     guard context.valid else {
-      stack.removeAll { $0.isApproximatelyEqual(to: message) }
+      stack.removeAll { $0 == message }
       logError(for: message.context, error: .messageContextInvalid)
       return false
     }

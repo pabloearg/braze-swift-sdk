@@ -7,7 +7,7 @@
  */
 NS_ASSUME_NONNULL_BEGIN
 
-BRZ_DEPRECATED("renamed to 'BrazeSDKAuthDelegate'")
+BRZ_DEPRECATED("renamed to 'BrazeDelegate'")
 @protocol ABKSdkAuthenticationDelegate <NSObject>
 
 /*!

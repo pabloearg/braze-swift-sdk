@@ -20,7 +20,7 @@ open class ShadowView: UIView {
     super.init(frame: .zero)
 
     layer.shouldRasterize = true
-    layer.rasterizationScale = traitCollection.displayScale
+    layer.rasterizationScale = UIScreen.main.scale
   }
 
   /// Does not support interface-builder / storyboards.

@@ -9,15 +9,7 @@ extension BrazeInAppMessageUI {
   open class ModalImageView: UIView, InAppMessageView {
 
     /// The modal image in-app message.
-    public var message: Braze.InAppMessage.ModalImage {
-      get { messageWrapper.wrappedValue }
-      set {
-        messageWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the modal image in-app message.
-    let messageWrapper: MessageWrapper<Braze.InAppMessage.ModalImage>
+    public var message: Braze.InAppMessage.ModalImage
 
     // MARK: - Attributes
 
@@ -153,7 +145,12 @@ extension BrazeInAppMessageUI {
     public lazy var imageContainerView: UIScrollView = {
       let view = UIScrollView()
       view.addSubview(imageView)
-      view.contentInsetAdjustmentBehavior = .never
+      if #available(iOS 11, *) {
+        view.contentInsetAdjustmentBehavior = .never
+      } else {
+        // No need for iOS 10 support.
+        // No devices supporting iOS 10 has a need for safe-area handling.
+      }
       return view
     }()
 
@@ -211,7 +208,7 @@ extension BrazeInAppMessageUI {
       gifViewProvider: GIFViewProvider = .shared,
       presented: Bool = false
     ) {
-      self.messageWrapper = .init(wrappedValue: message)
+      self.message = message
       self.attributes = attributes
       self.gifViewProvider = gifViewProvider
       self.presented = presented
@@ -228,17 +225,6 @@ extension BrazeInAppMessageUI {
       applyTheme()
       applyAttributes()
 
-      #if os(visionOS)
-        registerForTraitChanges([
-          UITraitHorizontalSizeClass.self,
-          UITraitVerticalSizeClass.self,
-          UITraitActiveAppearance.self,
-        ]) { (self: Self, _: UITraitCollection) in
-          self.applyAttributes()
-          self.applyTheme()
-        }
-      #endif
-
       alpha = presented ? 1 : 0
     }
 
@@ -254,29 +240,18 @@ extension BrazeInAppMessageUI {
     open func applyTheme() {
       closeButton.setTitleColor(theme.closeButtonColor.uiColor, for: .normal)
       contentView.backgroundColor = theme.backgroundColor.uiColor
-      shadowView.alpha = theme.backgroundColor.a
       backgroundColor = theme.frameColor.uiColor
-
-      #if os(visionOS)
-        // visionOS hit testing does not trigger on clear background, we use an almost transparent
-        // color instead.
-        if theme.frameColor.a == 0 {
-          backgroundColor = UIColor(white: 0.01, alpha: 0.01)
-        }
-      #endif
 
       attributes.onTheme?(self)
     }
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(
-        _ previousTraitCollection: UITraitCollection?
-      ) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        applyAttributes()
-        applyTheme()
-      }
-    #endif
+    open override func traitCollectionDidChange(
+      _ previousTraitCollection: UITraitCollection?
+    ) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      applyAttributes()
+      applyTheme()
+    }
 
     // MARK: - Layout
 
@@ -416,14 +391,9 @@ extension BrazeInAppMessageUI {
       guard gesture.state == .ended else {
         return
       }
-
-      // Only handle click action if there are no buttons.
-      // Button clicks are handled separately by the target `ButtonView`.
-      if message.buttons.isEmpty {
-        logClick()
-        process(clickAction: message.clickAction)
-        dismiss()
-      }
+      logClick()
+      process(clickAction: message.clickAction)
+      dismiss()
     }
 
     open lazy var tapBackgroundGesture = UITapGestureRecognizer(

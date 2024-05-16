@@ -6,7 +6,7 @@ import UIKit
 @objc(BrazeInAppMessageUIDelegate)
 public protocol _OBJC_BrazeInAppMessageUIDelegate: AnyObject {
 
-  /// Defines whether the in-app message will be displayed now, discarded, or re-enqueued.
+  /// Defines whether the in-app message will be displayed now, displayed later, or discarded.
   ///
   /// The default implementation returns the display choice
   /// ``BrazeInAppMessageUI/DisplayChoice/now``.
@@ -15,7 +15,7 @@ public protocol _OBJC_BrazeInAppMessageUIDelegate: AnyObject {
   /// a full screen game or on a loading screen), you can use this delegate to delay or discard
   /// pending in-app message messages.
   ///
-  /// When returning ``BrazeInAppMessageUI/DisplayChoice/reenqueue``, the message is put on the top of
+  /// When returning ``BrazeInAppMessageUI/DisplayChoice/later``, the message is put on the top of
   /// the message ``BrazeInAppMessageUI/stack``. Use ``BrazeInAppMessageUI/presentNext()`` to
   /// present the next in-app message in the stack.
   ///
@@ -122,16 +122,7 @@ public enum _OBJC_BRZInAppMessageUIDisplayChoice: Int {
   /// The in-app message is **not displayed** and placed on top of the ``BrazeInAppMessageUI/stack``.
   ///
   /// Use ``BrazeInAppMessageUI/presentNext()`` to display the message at the top of the stack.
-  case reenqueue
-
-  /// Has identical behavior to ``BrazeInAppMessageUI/DisplayChoice/reenqueue``.
-  ///
-  /// This option has been deprecated and will be removed in a future update.
-  /// Please use ``BrazeInAppMessageUI/DisplayChoice/reenqueue`` instead.
-  @available(*, deprecated, renamed: "reenqueue")
-  public static var later: Self {
-    .reenqueue
-  }
+  case later
 
   /// The in-app message is discarded.
   case discard
@@ -139,7 +130,7 @@ public enum _OBJC_BRZInAppMessageUIDisplayChoice: Int {
   init(_ displayChoice: BrazeInAppMessageUI.DisplayChoice) {
     switch displayChoice {
     case .now: self = .now
-    case .reenqueue: self = .reenqueue
+    case .later: self = .later
     case .discard: self = .discard
     }
   }
@@ -147,7 +138,7 @@ public enum _OBJC_BRZInAppMessageUIDisplayChoice: Int {
   var displayChoice: BrazeInAppMessageUI.DisplayChoice {
     switch self {
     case .now: return .now
-    case .reenqueue: return .reenqueue
+    case .later: return .later
     case .discard: return .discard
     }
   }
@@ -235,7 +226,7 @@ final class _OBJC_BrazeInAppMessageUIDelegateWrapper: BrazeInAppMessageUIDelegat
     return delegate?._objc_inAppMessage?(
       ui,
       shouldProcess: .init(message.clickAction),
-      url: clickAction.url,
+      url: message.url,
       buttonId: buttonId,
       message: message,
       view: view

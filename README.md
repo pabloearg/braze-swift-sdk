@@ -5,11 +5,11 @@
 
 <p align="center">
   <a href="https://github.com/braze-inc/braze-swift-sdk/releases">
-    <img src="https://badgen.net/badge/version/9.1.0/blue" alt="Version: 9.1.0">
+    <img src="https://badgen.net/badge/version/6.2.0/blue" alt="Version: 6.2.0">
   </a>
   <a href="#">
-    <img src="https://badgen.net/badge/platforms/iOS%20%7C%20visionOS%20%7C%20tvOS%20%7C%20Mac%20Catalyst/orange"
-      alt="Platforms: iOS - visionOS – tvOS – Mac Catalyst">
+    <img src="https://badgen.net/badge/platforms/iOS%20%7C%20tvOS%20%7C%20Mac%20Catalyst/orange"
+      alt="Platforms: iOS – tvOS – Mac Catalyst">
   </a>
   <a href="#">
     <img src="https://badgen.net/badge/package%20managers/SwiftPM%20%7C%20CocoaPods/green" alt="Package Managers: SwiftPM - CocoaPods">
@@ -27,11 +27,10 @@
 
 ## Version Information
 - The Braze Swift SDK supports
-  - iOS 12.0+
+  - iOS 11.0+
   - Mac Catalyst 13.0+
-  - tvOS 12.0+
-  - visionOS 1.0+
-- Xcode 15.2 (15C500b) or newer
+  - tvOS 11.0+
+- Xcode 14.1 (14B47b) or newer
 - This repository follows [Semantic Versioning](https://semver.org/)
 
 ## Package Managers
@@ -42,16 +41,16 @@
 
 <!-- Table generated with https://www.tablesgenerator.com/markdown_tables -->
 
-|                                                                                                                             | iOS |     tvOS      | macCatatyst |   visionOS    |
-|-----------------------------------------------------------------------------------------------------------------------------|:---:|:-------------:|:-----------:|:-------------:|
-| **BrazeKit**</br> _Main SDK library providing support for [analytics] and [push notifications]._                            |  ✅  | ✅<sup>1</sup> |      ✅      |       ✅       |
-| **BrazeUI**</br> _Braze-provided user interface library for [In-App Messages] and [Content Cards]._                         |  ✅  |      n/a      |      ✅      |       ✅       |
-| **BrazeLocation**</br> _Location library providing support for [location analytics and geofence monitoring]._               |  ✅  | ✅<sup>2</sup> |      ✅      | ✅<sup>2</sup> |
-| **BrazeNotificationService**</br> _Notification service extension library providing support for [rich push notifications]._ |  ✅  |      n/a      |      ✅      |       ✅       |
-| **BrazePushStory**</br> _Notification content extension library providing support for [Push Stories]._                      |  ✅  |      n/a      |      ✅      |       ✅       |
+|                                                                                                                             | iOS |     tvOS      | macCatatyst |
+|-----------------------------------------------------------------------------------------------------------------------------|:---:|:-------------:|:-----------:|
+| **BrazeKit**</br> _Main SDK library providing support for [analytics] and [push notifications]._                            |  ✅  | ✅<sup>1</sup> |      ✅      |
+| **BrazeUI**</br> _Braze-provided user interface library for [In-App Messages] and [Content Cards]._                         |  ✅  |      n/a      |      ✅      |
+| **BrazeLocation**</br> _Location library providing support for [location analytics and geofence monitoring]._               |  ✅  | ✅<sup>2</sup> |      ✅      |
+| **BrazeNotificationService**</br> _Notification service extension library providing support for [rich push notifications]._ |  ✅  |      n/a      |      ✅      |
+| **BrazePushStory**</br> _Notification content extension library providing support for [Push Stories]._                      |  ✅  |      n/a      |      ✅      |
 
 <sup>1</sup> _Push notifications not supported on tvOS_</br>
-<sup>2</sup> _Geofence monitoring not supported on tvOS and visionOS_
+<sup>2</sup> _Geofence monitoring not supported on tvOS_
 
 [analytics]: https://www.braze.com/docs/user_guide/data_and_analytics/user_data_collection/sdk_data_collection/
 [push notifications]: https://www.braze.com/docs/user_guide/message_building_by_channel/push
@@ -73,16 +72,7 @@ Explore our [examples project](/Examples) which showcases multiple features' int
 | Flutter         | ✅                 | 3.0.0           |
 | Cordova         | ✅                 | 2.33.0          |
 | Unity           | ✅                 | 4.0.0           |
-| Xamarin         | ✅                 | 4.0.0           |
-
-## Alternative Repositories
-
-| Variant                               |                                     Repository | GH Issues, SDK info |
-|---------------------------------------|-----------------------------------------------:|--------------------:|
-| → **Sources and Static XCFrameworks** |                    [braze-inc/braze-swift-sdk] |                   ✓ |
-| Static XCFrameworks                   |    [braze-inc/braze-swift-sdk-prebuilt-static] |                   ✗ |
-| Dynamic XCFrameworks                  |   [braze-inc/braze-swift-sdk-prebuilt-dynamic] |                   ✗ |
-| Mergeable XCFrameworks (early access) | [braze-inc/braze-swift-sdk-prebuilt-mergeable] |                   ✗ |
+| Xamarin         | In Progress       | TBD             |
 
 ## `Appboy-iOS-SDK`
 
@@ -95,8 +85,3 @@ The `Appboy-iOS-SDK` (Objective-C) SDK is now in maintenance mode, which means o
 ## Questions?
 
 If you have questions, please contact [support@braze.com](mailto:support@braze.com) or open a [Github Issue](https://github.com/braze-inc/braze-swift-sdk/issues).
-
-[braze-inc/braze-swift-sdk]: https://github.com/braze-inc/braze-swift-sdk
-[braze-inc/braze-swift-sdk-prebuilt-static]: https://github.com/braze-inc/braze-swift-sdk-prebuilt-static
-[braze-inc/braze-swift-sdk-prebuilt-dynamic]: https://github.com/braze-inc/braze-swift-sdk-prebuilt-dynamic
-[braze-inc/braze-swift-sdk-prebuilt-mergeable]: https://github.com/braze-inc/braze-swift-sdk-prebuilt-mergeable

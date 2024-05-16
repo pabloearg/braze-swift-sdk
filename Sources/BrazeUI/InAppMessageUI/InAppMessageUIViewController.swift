@@ -54,11 +54,7 @@ extension BrazeInAppMessageUI {
     /// The message view can set this value via ``InAppMessageView/prefersStatusBarHidden`` to
     /// customize the status bar hidden state.
     var messageViewPrefersStatusBarHidden: Bool? {
-      didSet {
-        #if !os(visionOS)
-          setNeedsStatusBarAppearanceUpdate()
-        #endif
-      }
+      didSet { setNeedsStatusBarAppearanceUpdate() }
     }
 
     /// The message view initial accessibility element.
@@ -169,13 +165,9 @@ extension BrazeInAppMessageUI {
     open override var prefersStatusBarHidden: Bool {
       switch statusBarHideBehavior {
       case .auto:
-        #if os(visionOS)
-          return messageViewPrefersStatusBarHidden ?? false
-        #else
-          return messageViewPrefersStatusBarHidden
-            ?? preferencesProxy?.prefersStatusBarHidden
-            ?? false
-        #endif
+        return messageViewPrefersStatusBarHidden
+          ?? preferencesProxy?.prefersStatusBarHidden
+          ?? false
       case .hidden:
         return true
       case .visible:
@@ -188,25 +180,19 @@ extension BrazeInAppMessageUI {
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
-      #if os(visionOS)
-        return .default
-      #else
-        return preferencesProxy?.preferredStatusBarStyle ?? .default
-      #endif
+      preferencesProxy?.preferredStatusBarStyle ?? .default
     }
 
     open override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
-      #if os(visionOS)
-        return .fade
-      #else
-        return preferencesProxy?.preferredStatusBarUpdateAnimation ?? .fade
-      #endif
+      preferencesProxy?.preferredStatusBarUpdateAnimation ?? .fade
     }
 
+    @available(iOS 11.0, *)
     open override var prefersHomeIndicatorAutoHidden: Bool {
       preferencesProxy?.prefersHomeIndicatorAutoHidden ?? false
     }
 
+    @available(iOS 11.0, *)
     open override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
       preferencesProxy?.preferredScreenEdgesDeferringSystemGestures ?? []
     }
@@ -215,12 +201,6 @@ extension BrazeInAppMessageUI {
     open override var prefersPointerLocked: Bool {
       preferencesProxy?.prefersPointerLocked ?? false
     }
-
-    #if os(visionOS)
-      open override var preferredContainerBackgroundStyle: UIContainerBackgroundStyle {
-        .hidden
-      }
-    #endif
 
   }
 

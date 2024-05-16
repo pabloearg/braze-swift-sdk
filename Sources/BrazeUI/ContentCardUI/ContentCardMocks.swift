@@ -148,9 +148,9 @@ import UIKit
 
   }
 
-  // MARK: - ImageOnly
+  // MARK: - Banner
 
-  extension Braze.ContentCard.ImageOnly {
+  extension Braze.ContentCard.Banner {
 
     private static let backgroundColor = UIColor(red: 0.38, green: 0.64, blue: 0.74, alpha: 1.00)
 

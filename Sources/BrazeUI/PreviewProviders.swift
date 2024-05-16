@@ -86,6 +86,10 @@
 
         let viewController: UIViewController
 
+        init(viewController: UIViewController) {
+          self.viewController = viewController
+        }
+
         func makeUIViewController(context: Context) -> UIViewController {
           viewController
         }

@@ -67,8 +67,8 @@ extension BrazeInAppMessageUI {
       /// The buttons attributes.
       public var buttonsAttributes = ButtonView.Attributes.defaults
 
-      /// Specify the preferred display mode (see
-      /// ``BrazeInAppMessageUI/FullImageView/DisplayMode-swift.enum``).
+      /// Specify the preferred display mode. See
+      /// ``BrazeInAppMessageUI/FullImageView/DisplayMode-swift.enum``.
       public var preferredDisplayMode: DisplayMode?
 
       /// Closure allowing further customization, executed when the view is about to be presented.
@@ -114,14 +114,12 @@ extension BrazeInAppMessageUI {
     var modalMaxHeight: ViewDimension
     var modalCornerRadius: Double
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if preferredDisplayMode == nil {
-          displayMode = traitCollection.horizontalSizeClass == .compact ? .full : .modal
-        }
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      if preferredDisplayMode == nil {
+        displayMode = traitCollection.horizontalSizeClass == .compact ? .full : .modal
       }
-    #endif
+    }
 
     func updateForDisplayMode() {
       let displayMode = preferredDisplayMode ?? self.displayMode

@@ -7,17 +7,7 @@ extension BrazeInAppMessageUI {
   open class ButtonView: UIButton {
 
     /// The button definition.
-    public var button: Braze.InAppMessage.Button {
-      get {
-        buttonWrapper.wrappedValue
-      }
-      set {
-        buttonWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the in-app message button.
-    let buttonWrapper: MessageWrapper<Braze.InAppMessage.Button>
+    public var button: Braze.InAppMessage.Button
 
     /// Creates and returns a Braze in-app message compatible button.
     /// - Parameters:
@@ -27,15 +17,10 @@ extension BrazeInAppMessageUI {
       button: Braze.InAppMessage.Button,
       attributes: Attributes = .defaults
     ) {
-      self.buttonWrapper = .init(wrappedValue: button)
+      self.button = button
       self.attributes = attributes
 
       super.init(frame: .zero)
-
-      if #available(iOS 15.0, visionOS 1.0, *) {
-        configuration = .filled()
-        configuration?.cornerStyle = .fixed
-      }
 
       setTitle(button.text, for: .normal)
       titleLabel?.adjustsFontForContentSizeCategory = true
@@ -51,14 +36,6 @@ extension BrazeInAppMessageUI {
 
       applyTheme()
       applyAttributes()
-
-      #if os(visionOS)
-        registerForTraitChanges([
-          UITraitActiveAppearance.self
-        ]) { (self: Self, _: UITraitCollection) in
-          self.applyTheme()
-        }
-      #endif
     }
 
     @available(*, unavailable)
@@ -120,17 +97,8 @@ extension BrazeInAppMessageUI {
     ///
     /// This is called automatically whenever ``attributes-swift.property`` is updated.
     open func applyAttributes() {
-      if #available(iOS 15.0, visionOS 1.0, *) {
-        configuration?.contentInsets = attributes.padding.directionalEdgeInsets
-        configuration?.titleTextAttributesTransformer = .init { [attributes] inc in
-          var out = inc
-          out.font = attributes.font
-          return out
-        }
-      } else {
-        contentEdgeInsets = attributes.padding
-        titleLabel?.font = attributes.font
-      }
+      contentEdgeInsets = attributes.padding
+      titleLabel?.font = attributes.font
       layer.borderWidth = attributes.borderWidth
       layer.cornerRadius = attributes.cornerRadius
 
@@ -161,28 +129,21 @@ extension BrazeInAppMessageUI {
     ///
     /// This is called automatically whenever the trait collection is updated.
     open func applyTheme() {
-      if #available(iOS 15.0, visionOS 1.0, *) {
-        configuration?.baseForegroundColor = theme.textColor.uiColor
-        configuration?.baseBackgroundColor = theme.backgroundColor.uiColor
-      } else {
-        setTitleColor(theme.textColor.uiColor, for: .normal)
-        setBackgroundImage(theme.backgroundColor.image, for: .normal)
-        setBackgroundImage(
-          theme.backgroundColor.adjustingBrightness(by: -0.08).image,
-          for: .highlighted
-        )
-      }
+      setTitleColor(theme.textColor.uiColor, for: .normal)
+      setBackgroundImage(theme.backgroundColor.image, for: .normal)
+      setBackgroundImage(
+        theme.backgroundColor.adjustingBrightness(by: -0.08).image,
+        for: .highlighted
+      )
       layer.borderColor = theme.borderColor.uiColor.cgColor
     }
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(
-        _ previousTraitCollection: UITraitCollection?
-      ) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        applyTheme()
-      }
-    #endif
+    open override func traitCollectionDidChange(
+      _ previousTraitCollection: UITraitCollection?
+    ) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      applyTheme()
+    }
 
   }
 

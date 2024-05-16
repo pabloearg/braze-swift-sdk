@@ -7,7 +7,6 @@ extension BrazeInAppMessageUI {
     case noContextLogClick
     case noContextProcessClickAction
     case invalidBrazeActions
-    case invalidPushPrimer
 
     case rawToTypedConversion(Braze.ErrorString)
 
@@ -16,9 +15,7 @@ extension BrazeInAppMessageUI {
     case noAppRootViewController
     case noFontAwesome
     case noMatchingOrientation
-    case noWindowScene
     case assetsFailure(Braze.ErrorString)
-    case invalidConstraints
 
     case otherMessagePresented(push: Bool)
     case messageContextInvalid
@@ -46,8 +43,6 @@ extension BrazeInAppMessageUI.Error {
       return "Cannot process click action for non-braze in-app message."
     case .invalidBrazeActions:
       return "Invalid Braze Actions found in click action. Skipping display."
-    case .invalidPushPrimer:
-      return "Invalid push primer."
 
     case .rawToTypedConversion(let error):
       return
@@ -70,8 +65,6 @@ extension BrazeInAppMessageUI.Error {
     case .noMatchingOrientation:
       return
         "Unable to present message - current orientation / size classes are not supported by the message."
-    case .noWindowScene:
-      return "Unable to present message - no window scene available to present message."
     case .assetsFailure(let error):
       return
         """
@@ -79,9 +72,6 @@ extension BrazeInAppMessageUI.Error {
         - description: \(error.localizedDescription)
         - error: \(error)
         """
-    case .invalidConstraints:
-      return
-        "Unable to present message - constraints were invalid or nil."
 
     case .otherMessagePresented(let push):
       return
@@ -137,6 +127,18 @@ extension Braze.WebViewBridge.ScriptMessageHandler.Error {
         """
     case .deprecation(let message):
       return message
+    case .pushAlreadyEnabled:
+      return
+        """
+        Unable to process JavaScript bridge action to request push permission.
+        - Push is already enabled.
+        """
+    case .invalidPushAuthStatus:
+      return
+        """
+        Unable to process JavaScript bridge action to request push permission.
+        - Push authorization status not found.
+        """
     case .unknown(let error):
       return error.logDescription
     @unknown default:

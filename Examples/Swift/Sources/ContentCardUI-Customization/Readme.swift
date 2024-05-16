@@ -49,11 +49,6 @@ let actions: [(String, String, (ReadmeViewController) -> Void)] = [
     "Modify the cards texts before display.",
     transformCardsCustomization
   ),
-  (
-    "Disable dark theme",
-    "Make cards present in light theme even if the device is in dark mode.",
-    disableDarkThemeCustomization
-  ),
 ]
 
 // MARK: - Internal
@@ -93,8 +88,8 @@ let classicImage: Braze.ContentCard = withContext(
   )
 )
 
-let imageOnly: Braze.ContentCard = withContext(
-  .imageOnly(
+let banner: Braze.ContentCard = withContext(
+  .banner(
     .init(
       data: .init(clickAction: .url(URL(string: "https://example.com")!, useWebView: true)),
       image: .mockImage(width: 1200, height: 675, text: "🧁", textSize: 256, drawCorners: false),
@@ -145,10 +140,6 @@ func filterCardsCustomization(_ viewController: ReadmeViewController) {
 
 func transformCardsCustomization(_ viewController: ReadmeViewController) {
   AppDelegate.transformCardsCustomization()
-}
-
-func disableDarkThemeCustomization(_ viewController: ReadmeViewController) {
-  AppDelegate.disableDarkThemeCustomization()
 }
 
 func withContext(_ card: Braze.ContentCard) -> Braze.ContentCard {

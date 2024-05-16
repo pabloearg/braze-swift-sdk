@@ -16,9 +16,7 @@ NSString *const readme =
     @"  - Rich push notification support (image, GIF, audio, video)\n"
     @"\n"
     @"- PushNotificationsContentExtension:\n"
-    @"  - Braze Push Story implementation\n"
-    @"\n"
-    @"See the PushNotifications-Automatic example app for a configuration based integration.";
+    @"  - Braze Push Story implementation";
 
 NSInteger const actionsCount = 0;
 

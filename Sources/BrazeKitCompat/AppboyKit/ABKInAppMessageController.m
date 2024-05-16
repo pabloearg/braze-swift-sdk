@@ -182,7 +182,7 @@
   switch (displayChoice) {
   case ABKDisplayInAppMessageNow:
     return @YES;
-  case ABKReenqueueInAppMessage:
+  case ABKDisplayInAppMessageLater:
     [self tryPushOnStack:message];
     return @NO;
   case ABKDiscardInAppMessage:

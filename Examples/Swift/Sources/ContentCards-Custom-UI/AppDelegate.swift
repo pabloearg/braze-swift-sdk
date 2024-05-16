@@ -50,8 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     switch card {
     case .classic(let classic):
       print("classic - title:", classic.title)
-    case .imageOnly(let imageOnly):
-      print("imageOnly - image:", imageOnly.image)
+    case .banner(let banner):
+      print("banner - image:", banner.image)
     default:
       break
     }
@@ -63,8 +63,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       print("classic - title:", title)
     }
 
-    if let image = card.imageOnly?.image {
-      print("imageOnly - image:", image)
+    if let image = card.banner?.image {
+      print("banner - image:", image)
     }
 
     // A wrapper / compatibility representation of the card is accessible via `.json()`

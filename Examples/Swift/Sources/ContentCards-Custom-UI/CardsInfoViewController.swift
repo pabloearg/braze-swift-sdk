@@ -111,11 +111,11 @@ final class CardsInfoViewController: UITableViewController {
         Field(name: "description", value: classicImage.description),
         Field(name: "domain", value: classicImage.domain ?? "nil"),
       ]
-    case .imageOnly(let imageOnly):
-      type.value = "imageOnly"
+    case .banner(let banner):
+      type.value = "banner"
       cardFields += [
-        Field(name: "image", value: imageOnly.image),
-        Field(name: "imageAspectRatio", value: imageOnly.imageAspectRatio ?? "nil"),
+        Field(name: "image", value: banner.image),
+        Field(name: "imageAspectRatio", value: banner.imageAspectRatio ?? "nil"),
       ]
     case .captionedImage(let captionedImage):
       type.value = "captionedImage"

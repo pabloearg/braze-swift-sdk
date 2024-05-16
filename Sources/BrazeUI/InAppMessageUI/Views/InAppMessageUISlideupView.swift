@@ -9,15 +9,7 @@ extension BrazeInAppMessageUI {
   open class SlideupView: UIView, InAppMessageView {
 
     /// The slideup in-app message.
-    public var message: Braze.InAppMessage.Slideup {
-      get { messageWrapper.wrappedValue }
-      set {
-        messageWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the slideup in-app message.
-    let messageWrapper: MessageWrapper<Braze.InAppMessage.Slideup>
+    public let message: Braze.InAppMessage.Slideup
 
     // MARK: - Attributes
 
@@ -37,7 +29,7 @@ extension BrazeInAppMessageUI {
       /// The spacing around the content's view content.
       public var padding = UIEdgeInsets(top: 15, left: 20, bottom: 15, right: 20)
 
-      /// The leading padding when the view is displaying a graphic (icon or image).
+      /// The leading padding when the view is displaying a graphic (icon or image)
       public var graphicLeadingPadding = 15.0
 
       /// The spacing between the graphic view, the body and the chevron.
@@ -116,7 +108,7 @@ extension BrazeInAppMessageUI {
       case visible
     }
 
-    /// The view attributes (see ``Attributes-swift.struct``).
+    /// The view attributes. See ``Attributes-swift.struct``.
     public var attributes: Attributes {
       didSet { applyAttributes() }
     }
@@ -150,30 +142,22 @@ extension BrazeInAppMessageUI {
         attributes.chevronVisibility == .hidden
         || (attributes.chevronVisibility == .auto && message.clickAction == .none)
 
-      // Corner radius + corner curve
+      // Corner radius
       shadowView.layer.cornerRadius = attributes.cornerRadius
       contentView.layer.cornerRadius = attributes.cornerRadius
+
+      // Corner curve
       if #available(iOS 13.0, *) {
         shadowView.layer.cornerCurve = attributes.cornerCurve
         contentView.layer.cornerCurve = attributes.cornerCurve
-      }
-      if #available(iOS 17.0, *) {
-        contentView.hoverStyle?.shape = .rect(
-          cornerRadius: attributes.cornerRadius,
-          cornerCurve: .init(layerCornerCurve: attributes.cornerCurve)
-        )
       }
 
       // Shadow
       shadowView.shadow = attributes.shadow
 
       // Dimensions
-      if let minHeightConstraint = minHeightConstraint,
-        let maxWidthConstraints = maxWidthConstraints
-      {
-        maxWidthConstraints.forEach { $0.constant = attributes.maxWidth }
-        minHeightConstraint.constant = attributes.minHeight
-      }
+      maxWidthConstraints.forEach { $0.constant = attributes.maxWidth }
+      minHeightConstraint.constant = attributes.minHeight
 
       // Image
       if case .image = message.graphic {
@@ -234,7 +218,7 @@ extension BrazeInAppMessageUI {
     open lazy var chevronView: UIImageView = {
       let image = UIImage(
         named: "InAppMessage/chevron",
-        in: BrazeUIResources.bundle,
+        in: resourcesBundle,
         compatibleWith: traitCollection
       )?
       .withRenderingMode(.alwaysTemplate)
@@ -258,14 +242,6 @@ extension BrazeInAppMessageUI {
       view.stack.alignment = .center
       view.stack.distribution = .fill
       view.stack.isLayoutMarginsRelativeArrangement = true
-      if #available(iOS 17.0, *) {
-        view.hoverStyle = UIHoverStyle(
-          shape: .rect(
-            cornerRadius: attributes.cornerRadius,
-            cornerCurve: .init(layerCornerCurve: attributes.cornerCurve)
-          )
-        )
-      }
       return view
     }()
 
@@ -277,7 +253,7 @@ extension BrazeInAppMessageUI {
       gifViewProvider: GIFViewProvider = .shared,
       presented: Bool = false
     ) {
-      self.messageWrapper = .init(wrappedValue: message)
+      self.message = message
       self.attributes = attributes
       self.gifViewProvider = gifViewProvider
       self.presented = presented
@@ -293,14 +269,6 @@ extension BrazeInAppMessageUI {
 
       applyTheme()
       applyAttributes()
-
-      #if os(visionOS)
-        registerForTraitChanges([
-          UITraitActiveAppearance.self
-        ]) { (self: Self, _: UITraitCollection) in
-          self.applyTheme()
-        }
-      #endif
     }
 
     @available(*, unavailable)
@@ -316,19 +284,16 @@ extension BrazeInAppMessageUI {
       messageLabel.textColor = theme.textColor.uiColor
       chevronView.tintColor = theme.closeButtonColor.uiColor
       contentView.backgroundColor = theme.backgroundColor.uiColor
-      shadowView.alpha = theme.backgroundColor.a
 
       attributes.onTheme?(self)
     }
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(
-        _ previousTraitCollection: UITraitCollection?
-      ) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        applyTheme()
-      }
-    #endif
+    open override func traitCollectionDidChange(
+      _ previousTraitCollection: UITraitCollection?
+    ) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      applyTheme()
+    }
 
     // MARK: - Layout
 
@@ -427,11 +392,6 @@ extension BrazeInAppMessageUI {
 
       UIView.performWithoutAnimation {
         superview?.layoutIfNeeded()
-      }
-
-      if innerYConstraint == nil || outerYConstraint == nil {
-        logError(BrazeInAppMessageUI.Error.invalidConstraints)
-        return
       }
 
       presented = true

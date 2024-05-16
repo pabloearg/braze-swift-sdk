@@ -3,11 +3,11 @@ import UIKit
 
 extension BrazeContentCardUI {
 
-  /// The Content Card cell which displays ImageOnly cards.
-  open class ImageOnlyCell: ImageCell {
+  /// The Content Card cell which displays Banner cards.
+  open class BannerCell: ImageCell {
 
     /// The type identifier.
-    public static let identifier = "BrazeContentCardUI.ImageOnlyCell"
+    public static let identifier = "BrazeContentCardUI.BannerCell"
 
     // MARK: - Initialization
 
@@ -39,11 +39,11 @@ extension BrazeContentCardUI {
 
     // MARK: - Card Update
 
-    /// Updates the cell with the passed imageOnly content card.
+    /// Updates the cell with the passed banner content card.
     /// - Parameters:
     ///   - card: The content card to display.
     ///   - imageLoad: The current image load state.
-    open func set(card: Braze.ContentCard.ImageOnly, imageLoad: AsyncImageView.ImageLoad?) {
+    open func set(card: Braze.ContentCard.Banner, imageLoad: AsyncImageView.ImageLoad?) {
       if case .success = imageLoad {
       } else {
         // Set the image view aspect ratio using the content card's value only if the image isn't
@@ -68,11 +68,11 @@ extension BrazeContentCardUI {
 
   import SwiftUI
 
-  struct ImageOnlyCell_Previews: PreviewProvider {
+  struct BannerCell_Previews: PreviewProvider {
     static let cards: [Braze.ContentCard] = [
-      .imageOnly(.mockPinned),
-      .imageOnly(.mockUnviewed),
-      .imageOnly(.mockViewed),
+      .banner(.mockPinned),
+      .banner(.mockUnviewed),
+      .banner(.mockViewed),
     ]
     static var previews: some View {
       BrazeContentCardUI.ViewController(initialCards: cards)

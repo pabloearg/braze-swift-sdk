@@ -35,10 +35,8 @@ extension UIButton {
 
 extension UIView {
 
-  /// Position the view in a resizable container view and returns it.
-  ///
-  /// The wrapped view can adopt its intrinsic content size without being stretched.
-  ///
+  /// Position the view in a resizable container view and returns it. The wrapped view can adopt its
+  /// intrinsic content size without being stretched.
   /// - Parameters:
   ///   - centerX: Horizontally center the view in the container view (default: `true`).
   ///   - centerY: Vertically center the view in the container view (default: `true`).
@@ -113,15 +111,11 @@ extension String {
 extension UIColor {
 
   static var brazeTableViewBackgroundColor: UIColor {
-    #if os(visionOS)
+    if #available(iOS 13.0, *) {
       return .systemGroupedBackground
-    #else
-      if #available(iOS 13.0, *) {
-        return .systemGroupedBackground
-      } else {
-        return .groupTableViewBackground
-      }
-    #endif
+    } else {
+      return .groupTableViewBackground
+    }
   }
 
   static var brazeCellBackgroundColor: UIColor {
@@ -220,30 +214,6 @@ extension UIGestureRecognizer {
     guard isEnabled else { return }
     isEnabled = false
     isEnabled = true
-  }
-
-}
-
-@available(iOS 17.0, *)
-extension UICornerCurve {
-
-  init(layerCornerCurve: CALayerCornerCurve) {
-    switch layerCornerCurve {
-    case .continuous:
-      self = .continuous
-    case .circular:
-      self = .circular
-    default:
-      self = .continuous
-    }
-  }
-
-}
-
-extension UIEdgeInsets {
-
-  var directionalEdgeInsets: NSDirectionalEdgeInsets {
-    NSDirectionalEdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
   }
 
 }

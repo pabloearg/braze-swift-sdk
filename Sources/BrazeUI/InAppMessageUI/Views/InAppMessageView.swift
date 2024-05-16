@@ -29,7 +29,7 @@ public protocol InAppMessageView: UIView {
   ///
   /// Additionally, the in-app message must also report analytics and click actions using:
   /// - ``logImpression()``: as soon as the message is fully visible to the user.
-  /// - ``logClick(buttonId:)``: as the result of a user click.
+  /// - ``logClick(buttonId:):``: as the result of a user click.
   ///
   /// - Parameters:
   ///   - completion: The completion block executed once the message view is fully visible to the
@@ -119,9 +119,7 @@ extension InAppMessageView {
     }
     ui.window = nil
 
-    #if !os(visionOS)
-      Braze.UIUtils.activeTopmostViewController?.setNeedsStatusBarAppearanceUpdate()
-    #endif
+    Braze.UIUtils.activeTopmostViewController?.setNeedsStatusBarAppearanceUpdate()
     if #available(iOS 16.0, *) {
       UIView.performWithoutAnimation {
         Braze.UIUtils.activeTopmostViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
@@ -154,7 +152,6 @@ extension InAppMessageView {
   }
 
   /// Call this method to process the in-app message click action.
-  ///
   /// - Parameters:
   ///   - clickAction: The click action to process.
   ///   - buttonId: An optional button identifier.

@@ -3,8 +3,8 @@ import UIKit
 
 extension BrazeContentCardUI {
 
-  /// Wraps ``ViewController`` in a `UINavigationController` with a _Done_ button for modal
-  /// presentation.
+  /// Wraps ``ViewController`` in a `UINavigationController` with a _Done_ button. Use this class
+  /// for presenting the content cards modally.
   @objc(BRZContentCardUIModalViewController)
   open class ModalViewController: UINavigationController {
 
@@ -35,8 +35,7 @@ extension BrazeContentCardUI {
 
     /// Creates and returns a table view controller able to display content cards.
     ///
-    /// For most use cases, prefer using ``BrazeContentCardUI/ModalViewController/init(braze:attributes:title:)``
-    /// instead.
+    /// For most use cases, prefer using ``init(braze:attributes:)`` instead.
     ///
     /// - Parameters:
     ///   - initialCards: The initial Content Cards displayed.

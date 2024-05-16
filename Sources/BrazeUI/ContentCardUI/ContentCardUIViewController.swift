@@ -9,13 +9,13 @@ extension BrazeContentCardUI {
 
     /// The content cards currently displayed.
     open var cards: [Braze.ContentCard] = [] {
-      didSet { emptyStateLabel.isHidden = cards.filter({ $0.control == nil }).isEmpty == false }
+      didSet { emptyStateLabel.isHidden = cards.isEmpty == false }
     }
 
     /// The delegate notified of the content cards UI lifecycle.
     open weak var delegate: BrazeContentCardUIViewControllerDelegate?
 
-    /// The internal refresh implementation, use ``refreshCards()`` instead.
+    /// The internal refresh implementation. Use ``refreshCards()`` instead.
     var refresh: ((@escaping (Result<[Braze.ContentCard], Error>) -> Void) -> Void)?
 
     /// The internal cards updates subscription implementation.
@@ -29,10 +29,6 @@ extension BrazeContentCardUI {
 
     /// The current asynchronous image loading operations.
     var imageLoads: [URL: AsyncImageView.ImageLoad] = [:]
-
-    /// The content cards viewed in the current session, used to limit one impression event per card
-    /// per feed instance.
-    var viewedInFeedCardsIDs: Set<String> = []
 
     // MARK: - Attributes
 
@@ -50,7 +46,7 @@ extension BrazeContentCardUI {
       public var cells: [String: UITableViewCell.Type] = [
         ClassicCell.identifier: ClassicCell.self,
         ClassicImageCell.identifier: ClassicImageCell.self,
-        ImageOnlyCell.identifier: ImageOnlyCell.self,
+        BannerCell.identifier: BannerCell.self,
         CaptionedImageCell.identifier: CaptionedImageCell.self,
         ControlCell.identifier: ControlCell.self,
       ]
@@ -92,9 +88,6 @@ extension BrazeContentCardUI {
 
       /// The empty state message color.
       public var emptyStateMessageColor: UIColor = .brazeLabel
-
-      /// Flag specifying whether content cards should display in dark theme when the device is in dark mode.
-      public var enableDarkTheme: Bool = true
 
       /// The default attributes.
       public static let defaults = Self()
@@ -140,11 +133,6 @@ extension BrazeContentCardUI {
       emptyStateLabel.text = attributes.emptyStateMessage
       emptyStateLabel.font = attributes.emptyStateMessageFont
       emptyStateLabel.textColor = attributes.emptyStateMessageColor
-
-      // EnableDarkTheme
-      if #available(iOS 13, *) {
-        overrideUserInterfaceStyle = attributes.enableDarkTheme ? .unspecified : .light
-      }
     }
 
     // MARK: Initialization
@@ -170,8 +158,8 @@ extension BrazeContentCardUI {
       )
     }
 
-    /// Creates and return a table view controller able to display content cards (for most use
-    /// cases, prefer using ``init(braze:attributes:)`` instead).
+    /// Creates and return a table view controller able to display content cards. For most use
+    /// cases, prefer using ``init(braze:attributes:)`` instead.
     ///
     /// - Parameters:
     ///   - initialCards: The initial Content Cards displayed.
@@ -256,8 +244,19 @@ extension BrazeContentCardUI {
 
     // MARK: - UITableView
 
-    /// Setup the table view.
+    /// Setup the table view
     open func setupTableView() {
+
+      // Cells
+      // - iOS 10 requires explicitly setting `estimatedRowHeight` to enable self-sizing cells
+      if #available(iOS 11.0, *) {
+      } else {
+        tableView.estimatedRowHeight = 200
+      }
+
+      // - iOS 10 & 11 `cellLayoutMarginsFollowReadableWidth` default to true
+      tableView.cellLayoutMarginsFollowReadableWidth = false
+
       // Appearance
       tableView.separatorStyle = .none
 
@@ -316,11 +315,11 @@ extension BrazeContentCardUI {
         cell.attributes = attributes
         cell.set(card: classicImage, imageLoad: imageLoad)
         return cell
-      case .imageOnly(let imageOnly):
-        let cell = dequeue(as: ImageOnlyCell.self)
+      case .banner(let banner):
+        let cell = dequeue(as: BannerCell.self)
         cell.contentImageView.retry = retry
         cell.attributes = attributes
-        cell.set(card: imageOnly, imageLoad: imageLoad)
+        cell.set(card: banner, imageLoad: imageLoad)
         return cell
       case .captionedImage(let captionedImage):
         let cell = dequeue(as: CaptionedImageCell.self)
@@ -370,7 +369,7 @@ extension BrazeContentCardUI {
         // We must return at least one pixel otherwise the table view has trouble reporting the
         // control cells properly in `tableView(_:willDisplay:forRowAt:)` and
         // `tableView(_:didEndDisplaying:forRowAt:)`
-        return 1.0 / traitCollection.displayScale
+        return 1.0 / UIScreen.main.scale
       }
       return UITableView.automaticDimension
     }
@@ -462,13 +461,12 @@ extension BrazeContentCardUI {
     ///   - card: The visible card.
     ///   - indexPath: The index path for the cell.
     open func cardImpression(_ card: Braze.ContentCard, indexPath: IndexPath) {
-      guard !viewedInFeedCardsIDs.contains(card.id) else { return }
+      if card.viewed { return }
       card.context?.logImpression()
 
       // We just update the local data model here, the unviewed indicator is updated separately via
       // `cardViewed(_:indexPath:cell:)`
       cards[indexPath.row].viewed = true
-      viewedInFeedCardsIDs.insert(card.id)
     }
 
     /// Mark the card as viewed, hide the cell's unviewed indicator.
@@ -654,7 +652,7 @@ extension BrazeContentCardUI {
     static let cards: [Braze.ContentCard] = [
       .classic(.mockDomain),
       .classicImage(.mockUnviewed),
-      .imageOnly(.mockPinned),
+      .banner(.mockPinned),
       .captionedImage(.mockShort),
     ]
 
@@ -670,7 +668,7 @@ extension BrazeContentCardUI {
     public typealias Cell = BrazeContentCardUI.Cell
     public typealias ClassicCell = BrazeContentCardUI.ClassicCell
     public typealias ClassicImageCell = BrazeContentCardUI.ClassicImageCell
-    public typealias ImageOnlyCell = BrazeContentCardUI.ImageOnlyCell
+    public typealias BannerCell = BrazeContentCardUI.BannerCell
     public typealias CaptionedImageCell = BrazeContentCardUI.CaptionedImageCell
     public typealias ControlCell = BrazeContentCardUI.ControlCell
   }

@@ -2,17 +2,7 @@
 #import "ABKInAppMessageUIDelegate.h"
 #import "ABKInAppMessageWindowController.h"
 
-#if __has_feature(modules)
-  @import BrazeKit;
-#else
-  #import <BrazeKit/BrazeKit-Swift.h>
-#endif
-
-#if __has_include(<BrazeKitCompat/ABKInAppMessageUIControlling.h>)
-  #import <BrazeKitCompat/ABKInAppMessageUIControlling.h>
-#else
-  #import "ABKInAppMessageUIControlling.h"
-#endif
+@import BrazeKit;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

@@ -9,20 +9,12 @@ extension BrazeInAppMessageUI {
   open class ControlView: UIView, InAppMessageView {
 
     /// The control in-app message.
-    public var message: Braze.InAppMessage.Control {
-      get { messageWrapper.wrappedValue }
-      set {
-        messageWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the control in-app message.
-    let messageWrapper: MessageWrapper<Braze.InAppMessage.Control>
+    public var message: Braze.InAppMessage.Control
 
     /// Creates and returns a control in-app message view.
     /// - Parameter message: The message.
     public init(message: Braze.InAppMessage.Control) {
-      self.messageWrapper = .init(wrappedValue: message)
+      self.message = message
       super.init(frame: .zero)
     }
 

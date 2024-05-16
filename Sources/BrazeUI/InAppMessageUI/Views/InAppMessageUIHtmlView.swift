@@ -4,21 +4,13 @@ import WebKit
 
 extension BrazeInAppMessageUI {
 
-  /// The view for html in-app messages.
+  /// The view for html in-app messages
   ///
   /// The html view can be customized using the ``attributes-swift.property`` property.
   open class HtmlView: UIView, InAppMessageView {
 
     /// The html in-app message.
-    public var message: Braze.InAppMessage.Html {
-      get { messageWrapper.wrappedValue }
-      set {
-        messageWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the html in-app message.
-    let messageWrapper: MessageWrapper<Braze.InAppMessage.Html>
+    public var message: Braze.InAppMessage.Html
 
     // MARK: - Attributes
 
@@ -41,8 +33,8 @@ extension BrazeInAppMessageUI {
       public var automaticBodyClicks: Bool = false
 
       /// Specifies whether the web view should support the `target` parameter / attribute in:
-      /// - Anchor tags (e.g. `<a href="..." target="_blank">`).
-      /// - Window opens (e.g. `window.open(url, "_blank")`).
+      /// - Anchor tags (e.g. `<a href="..." target="_blank">`)
+      /// - Window opens (e.g. `window.open(url, "_blank")`)`
       ///
       /// When set to true (default), the url marked with `target` is opened and the message
       /// remains visible.
@@ -50,9 +42,6 @@ extension BrazeInAppMessageUI {
       ///
       /// Deeplinks (e.g. `customAppScheme://`) always dismiss the message.
       public var linkTargetSupport: Bool = true
-
-      /// Specifies whether the web view should support the Web Inspector developer tool, if available.
-      public var allowInspector: Bool = true
 
       /// Closure allowing customization of the configuration used by the web view.
       public var configure: ((WKWebViewConfiguration) -> Void)?
@@ -73,7 +62,7 @@ extension BrazeInAppMessageUI {
       public static var defaults = Self()
     }
 
-    /// The view attributes (see ``Attributes-swift.struct``).
+    /// The view attributes. See ``Attributes-swift.struct``.
     public let attributes: Attributes
 
     // MARK: - Animation
@@ -123,17 +112,7 @@ extension BrazeInAppMessageUI {
     public lazy var scriptMessageHandler: Braze.WebViewBridge.ScriptMessageHandler =
       webViewScriptMessageHandler()
     public lazy var schemeHandler: Braze.WebViewBridge.SchemeHandler = webViewSchemeHandler()
-    public var queryHandler: Braze.WebViewBridge.QueryHandler {
-      get {
-        queryHandlerWrapper.wrappedValue
-      }
-      set {
-        queryHandlerWrapper.wrappedValue = newValue
-      }
-    }
-
-    lazy var queryHandlerWrapper: MessageWrapper<Braze.WebViewBridge.QueryHandler> = .init(
-      wrappedValue: webViewQueryHandler())
+    public lazy var queryHandler: Braze.WebViewBridge.QueryHandler = webViewQueryHandler()
 
     // MARK: - LifeCycle
 
@@ -142,18 +121,10 @@ extension BrazeInAppMessageUI {
       attributes: Attributes = .defaults,
       presented: Bool = false
     ) {
-      self.messageWrapper = .init(wrappedValue: message)
+      self.message = message
       self.attributes = attributes
       self.presented = presented
       super.init(frame: .zero)
-
-      #if os(visionOS)
-        registerForTraitChanges([
-          UITraitActiveAppearance.self
-        ]) { (self: Self, _: UITraitCollection) in
-          self.attributes.onTheme?(self)
-        }
-      #endif
     }
 
     @available(*, unavailable)
@@ -175,12 +146,10 @@ extension BrazeInAppMessageUI {
 
     // MARK: - Theme
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        attributes.onTheme?(self)
-      }
-    #endif
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      attributes.onTheme?(self)
+    }
 
     // MARK: - Layout
 
@@ -300,19 +269,14 @@ extension BrazeInAppMessageUI {
       webView.scrollView.bounces = false
       webView.backgroundColor = .clear
       webView.isOpaque = false
-
-      #if compiler(>=5.8)
-        if #available(iOS 16.4, macOS 13.3, *) {
-          webView.isInspectable = attributes.allowInspector
-        }
-      #endif
-
       // Disable this optimization for mac catalyst (force webview in window bounds)
       #if !targetEnvironment(macCatalyst)
-        // Make web view ignore the safe area allowing proper handling in html / css. See the usage
-        // section at https://developer.mozilla.org/en-US/docs/Web/CSS/env() (archived version:
-        // https://archive.is/EBSJD) for instructions.
-        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        if #available(iOS 11.0, *) {
+          // Make web view ignore the safe area allowing proper handling in html / css. See the usage
+          // section at https://developer.mozilla.org/en-US/docs/Web/CSS/env() (archived version:
+          // https://archive.is/EBSJD) for instructions.
+          webView.scrollView.contentInsetAdjustmentBehavior = .never
+        }
       #endif
       webView.alpha = attributes.animation.initialAlpha(legacy: message.legacy)
       addSubview(webView)
@@ -322,7 +286,7 @@ extension BrazeInAppMessageUI {
     open func loadMessage() {
       guard let baseURL = message.baseURL else {
         logError(.htmlNoBaseURL)
-        messageWrapper.wrappedValue.animateOut = false
+        message.animateOut = false
         dismiss()
         return
       }
@@ -336,7 +300,7 @@ extension BrazeInAppMessageUI {
 
       // Write index.html
       let index = baseURL.appendingPathComponent("index.html")
-      try? messageWrapper.wrappedValue.message.write(to: index, atomically: true, encoding: .utf8)
+      try? message.message.write(to: index, atomically: true, encoding: .utf8)
 
       // Load
       webView?.loadFileURL(index, allowingReadAccessTo: baseURL)
@@ -436,7 +400,7 @@ extension BrazeInAppMessageUI.HtmlView: WKNavigationDelegate {
     withError error: Error
   ) {
     logError(.webViewNavigation(.init(error)))
-    messageWrapper.wrappedValue.animateOut = false
+    message.animateOut = false
     dismiss()
   }
 
@@ -530,25 +494,25 @@ extension BrazeInAppMessageUI.HtmlView {
 extension WKWebView {
 
   fileprivate func disableDragAndDrop() {
-    bfsSubviews
-      .lazy
-      .first { $0.interactions.contains(where: { $0 is UIDragInteraction }) }?
-      .interactions
-      .filter { $0 is UIDragInteraction }
-      .forEach { $0.view?.removeInteraction($0) }
+    if #available(iOS 11.0, *) {
+      self
+        .bfsSubviews
+        .lazy
+        .first { $0.interactions.contains(where: { $0 is UIDragInteraction }) }?
+        .interactions
+        .filter { $0 is UIDragInteraction }
+        .forEach { $0.view?.removeInteraction($0) }
+    }
   }
 
   fileprivate func disableSelection() {
     evaluateJavaScript(
       """
       const css = `* {
-          -webkit-touch-callout: none;
-          -webkit-user-select: none;
-      }
-      input, textarea {
-          -webkit-touch-callout: initial !important;
-          -webkit-user-select: initial !important;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
       }`
+      const head = document.head || document.getElementsByTagName('head')[0]
       var style = document.createElement('style')
       style.type = 'text/css'
       style.appendChild(document.createTextNode(css))
@@ -561,9 +525,8 @@ extension WKWebView {
 
 extension WKNavigationAction {
 
-  /// Returns whether the navigation action is considered _transient_.
-  ///
-  /// A transient navigation action is processed without dismissing the in-app message.
+  /// Returns whether the navigation action is considered _transient_. A transient navigation action
+  /// is processed without dismissing the in-app message.
   ///
   /// In HTML, transient navigation actions are performed via an anchor tag with an explicit
   /// undefined target value (e.g. `_blank`, `_new` or any other name excepted `_self`).

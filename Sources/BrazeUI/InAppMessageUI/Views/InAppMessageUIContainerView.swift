@@ -61,16 +61,10 @@ extension BrazeInAppMessageUI {
       else {
         return
       }
-      #if os(visionOS)
-        let frameEnd =
-          window.windowScene?.coordinateSpace.convert(keyboard.frame, to: superview)
-          ?? .zero
-      #else
-        let frameEnd = window.screen.coordinateSpace.convert(keyboard.frame, to: superview)
-      #endif
-      let frame = superview.bounds.intersection(frameEnd)
-      bottomConstraint?.constant = -frame.height
 
+      let frame = window.convert(keyboard.frame, to: superview)
+        .intersection(superview.frame)
+      bottomConstraint?.constant = -frame.height
       UIView.animate(
         withDuration: 0.25,
         delay: 0,

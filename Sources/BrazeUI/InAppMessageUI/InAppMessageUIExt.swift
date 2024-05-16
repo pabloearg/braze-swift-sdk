@@ -12,7 +12,7 @@ extension BrazeInAppMessageUI {
 
   /// The different display choices supported when receiving an in-app message from the Braze SDK.
   ///
-  /// See ``BrazeInAppMessageUIDelegate/inAppMessage(_:displayChoiceForMessage:)-9w1nb``.
+  /// See ``BrazeInAppMessageUIDelegate/inAppMessage(_:displayChoiceForMessage:)-1ghly``.
   public enum DisplayChoice {
 
     /// The in-app message is displayed immediately.
@@ -21,16 +21,7 @@ extension BrazeInAppMessageUI {
     /// The in-app message is **not displayed** and placed on top of the ``BrazeInAppMessageUI/stack``.
     ///
     /// Use ``BrazeInAppMessageUI/presentNext()`` to display the message at the top of the stack.
-    case reenqueue
-
-    /// Has identical behavior to ``BrazeInAppMessageUI/DisplayChoice/reenqueue``.
-    ///
-    /// This option has been deprecated and will be removed in a future update.
-    /// Please use ``BrazeInAppMessageUI/DisplayChoice/reenqueue`` instead.
-    @available(*, deprecated, renamed: "reenqueue")
-    public static var later: Self {
-      .reenqueue
-    }
+    case later
 
     /// The in-app message is discarded.
     case discard
@@ -89,25 +80,6 @@ extension BrazeInAppMessageUI {
 
     default:
       return nil
-    }
-  }
-
-}
-
-extension BrazeInAppMessageUI {
-
-  /// Wrapper class to contain the corresponding `BrazeKit` struct.
-  ///
-  /// InAppMessage types are represented as structs and imported from BrazeKit.
-  /// This wrapper acts as a workaround to prevent Objective-C metaclass errors.
-  class MessageWrapper<WrappedType> {
-    var wrappedValue: WrappedType
-
-    /// Initializes the wrapper with the wrapped struct.
-    ///
-    /// - Parameter wrappedValue: The wrapped struct type.
-    init(wrappedValue: WrappedType) {
-      self.wrappedValue = wrappedValue
     }
   }
 

@@ -35,7 +35,7 @@ extension BrazeInAppMessageUI {
     ) {
       self.symbol = symbol
       self.attributes = attributes
-      self.themeWrapper = .init(wrappedValue: theme)
+      self.theme = theme
 
       super.init(frame: .zero)
       addSubview(label)
@@ -58,17 +58,17 @@ extension BrazeInAppMessageUI {
 
       /// Intrinsic size of the icon, including the background.
       ///
-      /// Default: `50x50pt`.
+      /// Default: `50x50pt.`
       public var size: CGSize = CGSize(width: 50, height: 50)
 
       /// Size of the symbol, excluding the background.
       ///
-      /// Default: `30pt`.
+      /// Default: `30pt.`
       public var symbolSize = 30.0
 
-      /// Corner radius of the icon's background.
+      /// Corner radius of the icon's background
       ///
-      /// Default: `10pt`.
+      /// Default: `10pt.`
       public var cornerRadius = 10.0
 
       /// Default initializer.
@@ -110,17 +110,8 @@ extension BrazeInAppMessageUI {
 
     /// The current theme.
     public var theme: Braze.InAppMessage.Theme {
-      get {
-        themeWrapper.wrappedValue
-      }
-      set {
-        themeWrapper.wrappedValue = newValue
-        applyTheme()
-      }
+      didSet { applyTheme() }
     }
-
-    /// Internal wrapper for the in-app message theme.
-    let themeWrapper: MessageWrapper<Braze.InAppMessage.Theme>
 
     /// Apply the current ``theme`` to the view.
     ///
@@ -141,8 +132,7 @@ extension BrazeInAppMessageUI {
       guard UIFont(name: "FontAwesome", size: 30) == nil else {
         return true
       }
-      guard
-        let url = BrazeUIResources.bundle?.url(forResource: "FontAwesome", withExtension: "otf"),
+      guard let url = resourcesBundle?.url(forResource: "FontAwesome", withExtension: "otf"),
         let data = try? Data(contentsOf: url),
         let dataProvider = CGDataProvider(data: data as CFData),
         let font = CGFont(dataProvider)

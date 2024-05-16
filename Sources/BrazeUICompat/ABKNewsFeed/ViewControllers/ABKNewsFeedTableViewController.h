@@ -1,14 +1,10 @@
 #import <UIKit/UIKit.h>
 #import "ABKNFBaseCardCell.h"
-#if __has_include(<BrazeKitCompat/ABKFeedController.h>)
-  #import <BrazeKitCompat/ABKFeedController.h>
-#else
-  #import "ABKFeedController.h"
-#endif
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+typedef NS_OPTIONS(NSUInteger, ABKCardCategory);
 @class ABKCard;
 
 @interface ABKNewsFeedTableViewController : UITableViewController <ABKBaseNewsFeedCellDelegate>

@@ -9,11 +9,8 @@ final class ReadmeViewController: UITableViewController {
     textView.backgroundColor = .clear
     textView.isScrollEnabled = false
 
-    #if os(iOS) || os(visionOS)
-      textView.isEditable = false
-    #endif
-
     #if os(iOS)
+      textView.isEditable = false
       textView.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 0, right: 16)
       if #available(iOS 13.0, *) {
         textView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
@@ -23,11 +20,6 @@ final class ReadmeViewController: UITableViewController {
         top: 0, left: 16 * 6, bottom: 16 * 4, right: 16 * 6)
       if #available(tvOS 13.0, *) {
         textView.font = .monospacedSystemFont(ofSize: 30, weight: .regular)
-      }
-    #elseif os(visionOS)
-      textView.textContainerInset = UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
-      if #available(tvOS 13.0, *) {
-        textView.font = .monospacedSystemFont(ofSize: 20, weight: .regular)
       }
     #endif
 
@@ -111,15 +103,7 @@ private var _window: UIWindow? = {
   let readmeViewController = ReadmeViewController(readme: readme, actions: actions)
   let navigationController = UINavigationController(rootViewController: readmeViewController)
 
-  #if os(visionOS)
-    let window = UIWindow(
-      windowScene: UIApplication.shared.connectedScenes
-        .compactMap { $0 as? UIWindowScene }
-        .first { $0.activationState == .foregroundActive }!
-    )
-  #else
-    let window = UIWindow(frame: UIScreen.main.bounds)
-  #endif
+  let window = UIWindow(frame: UIScreen.main.bounds)
   window.rootViewController = navigationController
   return window
 }()

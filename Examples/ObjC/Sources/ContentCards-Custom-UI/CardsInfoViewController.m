@@ -118,7 +118,7 @@
   case BRZContentCardRawTypeClassic:
     [fields addObject:[Field fieldWithName:@"type" value:@"classic"]];
     break;
-  case BRZContentCardRawTypeImageOnly:
+  case BRZContentCardRawTypeBanner:
     [fields addObject:[Field fieldWithName:@"type" value:@"banner"]];
     break;
   case BRZContentCardRawTypeCaptionedImage:

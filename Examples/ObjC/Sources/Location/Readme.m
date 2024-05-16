@@ -52,7 +52,7 @@ ReadmeAction const actions[] = {
 }
 ;
 
-#elif TARGET_OS_TV || TARGET_OS_VISION
+#elif TARGET_OS_TV
 
 NSInteger const actionsCount = 1;
 

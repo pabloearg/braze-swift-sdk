@@ -20,15 +20,7 @@ extension BrazeInAppMessageUI {
   open class ModalView: UIView, InAppMessageView {
 
     /// The modal in-app message.
-    public var message: Braze.InAppMessage.Modal {
-      get { messageWrapper.wrappedValue }
-      set {
-        messageWrapper.wrappedValue = newValue
-      }
-    }
-
-    /// Internal wrapper for the modal in-app message.
-    let messageWrapper: MessageWrapper<Braze.InAppMessage.Modal>
+    public var message: Braze.InAppMessage.Modal
 
     // MARK: - Attributes
 
@@ -48,7 +40,7 @@ extension BrazeInAppMessageUI {
       /// The spacing around the content's view content.
       public var padding: UIEdgeInsets = .init(top: 40, left: 25, bottom: 30, right: 25)
 
-      /// The spacing between the header and message.
+      /// The spacing between the header and message
       public var labelsSpacing = 10.0
 
       /// The spacing between the graphic, the labels scroll view and the buttons.
@@ -133,14 +125,12 @@ extension BrazeInAppMessageUI {
         bottom: padding.bottom,
         right: 0
       )
-
-      textView.layoutMargins = .init(
+      textContainer.layoutMargins = .init(
         top: 0,
         left: padding.left,
         bottom: 0,
         right: padding.right
       )
-
       buttonsContainer?.stack.layoutMargins = .init(
         top: 0,
         left: padding.left,
@@ -149,14 +139,12 @@ extension BrazeInAppMessageUI {
       )
 
       // Spacings
+      textViewStyle.headerMessageSpacing = attributes.labelsSpacing
       contentView.stack.spacing = attributes.spacing
 
-      // Text view attributes
-      textView.attributes = .init(
-        modal: message,
-        attributes: attributes,
-        traitCollection: traitCollection
-      )
+      // Fonts
+      textViewStyle.header.font = attributes.headerFont
+      textViewStyle.message.font = attributes.messageFont
 
       // Corner radius
       shadowView.layer.cornerRadius = attributes.cornerRadius
@@ -210,11 +198,32 @@ extension BrazeInAppMessageUI {
       }
     }()
 
-    public lazy var textView: ModalTextView = ModalTextView(
-      modal: message,
-      attributes: attributes,
-      traitCollection: traitCollection
-    )
+    public lazy var textView: UITextView = {
+      let textView = UITextView()
+      // Config defaults:
+      textView.backgroundColor = .clear
+      textView.isEditable = false
+      textView.isSelectable = false
+      textView.adjustsFontForContentSizeCategory = true
+
+      // Don't allow scrolling; the textview's parent (a scrollview) will control that.
+      // This will force the textView to render its full content height,
+      // and the textViewContainer can then take that as its content and scroll it for us.
+      // (This hot tip brought to you by https://archive.is/fMUR7 and many other results.)
+      textView.isScrollEnabled = false
+
+      // Layout defaults:
+      textView.setContentCompressionResistancePriority(.required, for: .vertical)
+      textView.setContentHuggingPriority(.required, for: .vertical)
+
+      return textView
+    }()
+
+    public lazy var textContainer: UIScrollView = {
+      let container = UIScrollView()
+      container.addSubview(textView)
+      return container
+    }()
 
     public lazy var buttonsContainer: StackView? = {
       let container = StackView(
@@ -247,7 +256,7 @@ extension BrazeInAppMessageUI {
       let view = StackView(
         arrangedSubviews: [
           graphicView,
-          textView,
+          textContainer,
           buttonsContainer,
         ]
         .compactMap { $0 }
@@ -280,10 +289,22 @@ extension BrazeInAppMessageUI {
       gifViewProvider: GIFViewProvider = .shared,
       presented: Bool = false
     ) {
-      self.messageWrapper = .init(wrappedValue: message)
+      self.message = message
       self.attributes = attributes
       self.gifViewProvider = gifViewProvider
       self.presented = presented
+
+      self.textViewStyle = TextViewStyle(
+        header: .init(
+          color: .clear,
+          font: attributes.headerFont
+        ),
+        message: .init(
+          color: .clear,
+          font: attributes.messageFont
+        ),
+        headerMessageSpacing: attributes.labelsSpacing
+      )
 
       super.init(frame: .zero)
 
@@ -296,17 +317,6 @@ extension BrazeInAppMessageUI {
 
       applyTheme()
       applyAttributes()
-
-      #if os(visionOS)
-        registerForTraitChanges([
-          UITraitHorizontalSizeClass.self,
-          UITraitVerticalSizeClass.self,
-          UITraitActiveAppearance.self,
-        ]) { (self: Self, _: UITraitCollection) in
-          self.applyAttributes()
-          self.applyTheme()
-        }
-      #endif
 
       alpha = presented ? 1 : 0
     }
@@ -321,36 +331,22 @@ extension BrazeInAppMessageUI {
     public var theme: Braze.InAppMessage.Theme { message.theme(for: traitCollection) }
 
     open func applyTheme() {
-      textView.attributes = .init(
-        modal: message,
-        attributes: attributes,
-        traitCollection: traitCollection
-      )
+      textViewStyle.header.color = theme.headerTextColor.uiColor
+      textViewStyle.message.color = theme.textColor.uiColor
       closeButton.setTitleColor(theme.closeButtonColor.uiColor, for: .normal)
       contentView.backgroundColor = theme.backgroundColor.uiColor
-      shadowView.alpha = theme.backgroundColor.a
       backgroundColor = theme.frameColor.uiColor
-
-      #if os(visionOS)
-        // visionOS hit testing does not trigger on clear background, we use an almost transparent
-        // color instead.
-        if theme.frameColor.a == 0 {
-          backgroundColor = UIColor(white: 0.01, alpha: 0.01)
-        }
-      #endif
 
       attributes.onTheme?(self)
     }
 
-    #if !os(visionOS)
-      open override func traitCollectionDidChange(
-        _ previousTraitCollection: UITraitCollection?
-      ) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        applyAttributes()
-        applyTheme()
-      }
-    #endif
+    open override func traitCollectionDidChange(
+      _ previousTraitCollection: UITraitCollection?
+    ) {
+      super.traitCollectionDidChange(previousTraitCollection)
+      applyAttributes()
+      applyTheme()
+    }
 
     // MARK: - Layout
 
@@ -386,6 +382,19 @@ extension BrazeInAppMessageUI {
         default:
           break
         }
+
+        // Anchor the text view's layout using margins from its parent container:
+        textView.anchors.leading.equal(textContainer.anchors.leadingMargin)
+        textView.anchors.trailing.equal(textContainer.anchors.trailingMargin)
+        textView.anchors.top.equal(textContainer.anchors.topMargin)
+        textView.anchors.bottom.equal(textContainer.anchors.bottomMargin)
+        textView.anchors.width.equal(textContainer.layoutMarginsGuide.anchors.width)
+        // Add a not-required priority to allow the text container scrollview to shrink
+        textView.anchors.height.lessThanOrEqual(textContainer.layoutMarginsGuide.anchors.height)
+          .priority =
+          .defaultHigh
+        let textViewHeightConstraint = textView.anchors.height.equal(textContainer.anchors.height)
+        textViewHeightConstraint.priority = .defaultHigh - 1
 
         // Close button
         closeButton.anchors.height.equal(closeButton.anchors.width)
@@ -481,14 +490,9 @@ extension BrazeInAppMessageUI {
       guard gesture.state == .ended else {
         return
       }
-
-      // Only handle click action if there are no buttons.
-      // Button clicks are handled separately by the target `ButtonView`.
-      if message.buttons.isEmpty {
-        logClick()
-        process(clickAction: message.clickAction)
-        dismiss()
-      }
+      logClick()
+      process(clickAction: message.clickAction)
+      dismiss()
     }
 
     open lazy var tapBackgroundGesture = UITapGestureRecognizer(
@@ -504,6 +508,66 @@ extension BrazeInAppMessageUI {
       dismiss()
     }
 
+    // MARK: - Text view style
+
+    private var textViewStyle: TextViewStyle {
+      didSet {
+        if oldValue != textViewStyle {
+          self.updateTextViewContent()
+        }
+      }
+    }
+
+    private func updateTextViewContent() {
+      let textViewText = NSMutableAttributedString()
+
+      textViewText.append(
+        message.header.attributed(
+          with: [
+            NSAttributedString.Key.font: textViewStyle.header.font,
+            NSAttributedString.Key.foregroundColor: textViewStyle.header.color,
+          ],
+          {
+            $0.lineSpacing = 2 * TextViewLayoutConstants.headerLineSpacingScaleFactor
+            $0.alignment = message.headerTextAlignment.nsTextAlignment(forTraits: traitCollection)
+            $0.paragraphSpacing = max(
+              0.0,
+              textViewStyle.headerMessageSpacing
+                - TextViewLayoutConstants.headerMessageSpacingOffset)
+          })
+      )
+      // Users don't add newlines to the end of their header text
+      // Insert a newline between header and message, but not with the possible extra styling of the header (e.g. font size, etc.)
+      // The paragraph spacing set above will occur between the header text and this linebreak.
+      textViewText.append(NSAttributedString(string: "\n"))
+
+      textViewText.append(
+        message.message.attributed(
+          with: [
+            NSAttributedString.Key.font: textViewStyle.message.font,
+            NSAttributedString.Key.foregroundColor: textViewStyle.message.color,
+          ],
+          {
+            $0.lineSpacing = 4 * TextViewLayoutConstants.messageLineSpacingScaleFactor
+            $0.alignment = message.messageTextAlignment.nsTextAlignment(forTraits: traitCollection)
+          })
+      )
+
+      textView.attributedText = textViewText
+    }
+
+    private enum TextViewLayoutConstants {
+      // Manually-tuned values to get us close to our previous StackView+Label appearance.
+
+      // Soak up some vertical space that UITextView leaves above and below its text:
+      static let textContainerLayoutMargins = UIEdgeInsets(top: -8, left: 0, bottom: -8, right: 0)
+      // Scale factors for label → textview line spacing:
+      static let headerLineSpacingScaleFactor = 0.78
+      static let messageLineSpacingScaleFactor = 0.47
+      // Subtraction offset between header and message:
+      // (textview/TextKit renders a tiny bit of extra ascender+descender space that we want to eat up)
+      static let headerMessageSpacingOffset: Double = 1.0
+    }
   }
 
 }
@@ -565,7 +629,7 @@ extension BrazeInAppMessageUI {
 
       ModalView(message: .mockLong, presented: true)
         .preview(center: .required)
-        .frame(maxHeight: 700)
+        .frame(maxHeight: 375)
         .previewDisplayName("Var. | Long (constrained)")
 
       ModalView(message: .mockTallCharacters, presented: true)
